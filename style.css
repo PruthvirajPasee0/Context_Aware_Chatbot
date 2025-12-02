@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* 
+    Bento Grid Theme - Glassmorphism & Pastels
+    Palette: Catppuccin Mocha Inspired
+*/
+:root {
+    --bg-gradient: linear-gradient(135deg, #1e1e2e 0%, #181825 100%);
+    --card-bg: rgba(30, 30, 46, 0.6);
+    --sidebar-bg: rgba(24, 24, 37, 0.6);
+    --text-primary: #cdd6f4;
+    --text-secondary: #a6adc8;
+    --accent-primary: #cba6f7;
+    /* Pastel Lavender */
+    --accent-secondary: #89b4fa;
+    /* Pastel Blue */
+    --accent-pink: #f5c2e7;
+    /* Pastel Pink */
+    --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --bento-radius: 24px;
+}
+
+/* Global Reset & Base Styles */
+.stApp {
+    background: var(--bg-gradient);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+/* 
+    Fix Sidebar Toggle & Hide Branding 
+    We MUST keep 'header' visible for the hamburger menu
+*/
+#MainMenu,
+footer {
+    visibility: hidden;
+}
+
+header {
+    background: transparent !important;
+}
+
+/* 
+    -------------------
+    Glassmorphism Sidebar 
+    -------------------
+*/
+[data-testid="stSidebar"] {
+    background-color: var(--sidebar-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: var(--glass-border);
+    margin: 1rem;
+    border-radius: var(--bento-radius);
+    box-shadow: var(--shadow-glass);
+    height: calc(100vh - 2rem);
+    top: 1rem !important;
+    transition: transform 0.3s ease-in-out;
+}
+
+[data-testid="stSidebar"]>div:first-child {
+    padding: 2rem;
+}
+
+/* 
+    -------------------
+    Typography & Elements 
+    -------------------
+*/
+h1 {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(120deg, var(--accent-primary), var(--accent-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    animation: float 6s ease-in-out infinite;
+}
+
+p,
+.stMarkdown {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* 
+    -------------------
+    Micro-Animations & Buttons 
+    -------------------
+*/
+.stButton>button {
+    background: linear-gradient(135deg, rgba(203, 166, 247, 0.2), rgba(137, 180, 250, 0.2));
+    backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    color: var(--accent-primary);
+    border-radius: 16px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.stButton>button:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(203, 166, 247, 0.25);
+    background: linear-gradient(135deg, rgba(203, 166, 247, 0.3), rgba(137, 180, 250, 0.3));
+    color: #fff;
+    border-color: var(--accent-primary);
+}
+
+.stButton>button:active {
+    transform: translateY(-1px);
+}
+
+/* Select Box */
+.stSelectbox>div>div {
+    background-color: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    transition: border-color 0.3s ease;
+}
+
+.stSelectbox>div>div:hover {
+    border-color: var(--accent-secondary);
+}
+
+/* 
+    -------------------
+    Chat Interface (Glass Bubbles)
+    -------------------
+*/
+[data-testid="stChatMessage"] {
+    background-color: transparent;
+    padding: 1.2rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+[data-testid="stChatMessage"]:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    transform: translateX(5px);
+}
+
+/* User Message */
+[data-testid="stChatMessage"][data-testid="user"] {
+    background: linear-gradient(135deg, rgba(137, 180, 250, 0.15), rgba(137, 180, 250, 0.05));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(137, 180, 250, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Assistant Message */
+[data-testid="stChatMessage"][data-testid="assistant"] {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Avatars */
+[data-testid="stChatMessageAvatar"] {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 50%;
+    padding: 2px;
+    box-shadow: 0 0 15px rgba(203, 166, 247, 0.4);
+}
+
+/* 
+    -------------------
+    Input Area (Floating Glass Capsule) 
+    -------------------
+*/
+.stChatInput {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 800px;
+    z-index: 100;
+}
+
+.stChatInput>div {
+    background-color: rgba(30, 30, 46, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    padding: 5px 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stChatInput>div:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Fix for the big black box behind input */
+[data-testid="stBottom"],
+[data-testid="stBottom"]>div {
+    background-color: transparent !important;
+}
+
+/* Fix Sidebar Toggle Visibility */
+[data-testid="stSidebarCollapsedControl"] {
+    color: var(--text-primary) !important;
+    background-color: rgba(30, 30, 46, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 4px;
+    backdrop-filter: blur(10px);
+}
+
+header button {
+    color: var(--text-primary) !important;
+}
+
+/* Suggestion Chips */
+.main .stButton button {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: none !important;
+}
+
+.main .stButton button:hover {
+    background: rgba(203, 166, 247, 0.15) !important;
+    border-color: var(--accent-primary) !important;
+    color: var(--text-primary) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply fade in to main content */
+.main .block-container {
+    animation: fadeIn 0.8s ease-out;
+    padding-bottom: 8rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(166, 173, 200, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(166, 173, 200, 0.5);
+}
+
+/* Code Blocks */
+code {
+    font-family: 'JetBrains Mono', monospace;
+    background-color: rgba(17, 17, 27, 0.8) !important;
+    color: var(--accent-pink) !important;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
