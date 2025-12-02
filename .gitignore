@@ -1,1 +1,7 @@
+# Environment variables
 .env
+# Chat history (deprecated - now using ChromaDB)
+chat_sessions.json
+
+# User database
+users.db
