@@ -5,20 +5,19 @@
     Palette: Catppuccin Mocha Inspired
 */
 :root {
-    --bg-gradient: linear-gradient(135deg, #1e1e2e 0%, #181825 100%);
+    --bg-gradient: #000000;
     --card-bg: rgba(30, 30, 46, 0.6);
-    --sidebar-bg: rgba(33, 33, 72, 0.6);
-    --text-primary: #cdd6f4;
-    --text-secondary: #a6adc8;
-    --accent-primary: #cba6f7;
+    --text-primary: white;
+    --text-secondary: white;
+    --accent-primary: #f9f9f9;
     /* Pastel Lavender */
     --accent-secondary: #89b4fa;
     /* Pastel Blue */
     --accent-pink: #f5c2e7;
     /* Pastel Pink */
-    --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    --glass-border: 2px solid #1a1a1a;
     --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    --bento-radius: 24px;
+    --bento-radius: 15px;
 }
 
 /* Global Reset & Base Styles */
@@ -47,19 +46,13 @@ header {
     -------------------
 */
 [data-testid="stSidebar"] {
-    background-color: var(--sidebar-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 0 24px 24px 0;
+    background-color: var(--bg-gradient);
+    border: var(--glass-border);
     box-shadow: var(--shadow-glass);
     height: 100%;
     transition: transform 0.3s ease-in-out;
-    /* border: 5px solid red; */
 }
 
-[data-testid="stSidebar"]>div:first-child {
-    padding: 2rem;
-}
 
 /* 
     -------------------
@@ -88,8 +81,9 @@ p,
     Micro-Animations & Buttons 
     -------------------
 */
+
 .stButton>button {
-    background: linear-gradient(135deg, rgba(203, 166, 247, 0.2), rgba(137, 180, 250, 0.2));
+    background: black;
     backdrop-filter: blur(10px);
     border: var(--glass-border);
     color: var(--accent-primary);
@@ -97,16 +91,8 @@ p,
     padding: 0.6rem 1.5rem;
     font-weight: 600;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
     width: 100%;
-}
-
-.stButton>button:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(203, 166, 247, 0.25);
-    background: linear-gradient(135deg, rgba(203, 166, 247, 0.3), rgba(137, 180, 250, 0.3));
-    color: #fff;
-    border-color: var(--accent-primary);
 }
 
 .stButton>button:active {
@@ -191,7 +177,9 @@ p,
     border-radius: 40px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.stChatInput:focus-within, .stChatInput:hover {
+
+.stChatInput:focus-within,
+.stChatInput:hover {
     backdrop-filter: blur(10px);
     border-color: #cba6f71b;
 }
@@ -200,7 +188,7 @@ p,
 [data-testid="stBottom"],
 [data-testid="stBottom"]>div {
     background-color: transparent !important;
-} 
+}
 
 /* Suggestion Chips */
 .main .stButton button {
@@ -327,4 +315,56 @@ code {
     box-shadow: 0 6px 20px rgba(137, 180, 250, 0.3) !important;
     background: linear-gradient(135deg, rgba(137, 180, 250, 0.3), rgba(137, 220, 235, 0.3)) !important;
     border-color: var(--accent-secondary) !important;
+}
+
+/* 
+    -------------------
+    File Uploader Styling
+    -------------------
+*/
+[data-testid=\"stFileUploader\"] {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    border-radius: 16px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+[data-testid=\"stFileUploader\"]:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 15px rgba(203, 166, 247, 0.15);
+}
+
+[data-testid=\"stFileUploader\"] label {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+}
+
+[data-testid=\"stFileUploader\"] button {
+    background: linear-gradient(135deg, rgba(203, 166, 247, 0.2), rgba(137, 180, 250, 0.2)) !important;
+    border: var(--glass-border) !important;
+    color: var(--accent-primary) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+[data-testid=\"stFileUploader\"] button:hover {
+    background: linear-gradient(135deg, rgba(203, 166, 247, 0.3), rgba(137, 180, 250, 0.3)) !important;
+    border-color: var(--accent-primary) !important;
+    transform: translateY(-2px);
+}
+
+/* Uploaded Files List */
+.stButton>button[key*=\"delete_file_\"] {
+    background: rgba(255, 85, 85, 0.1) !important;
+    color: #ff5555 !important;
+    padding: 0.5rem !important;
+    min-width: 40px !important;
+    border-radius: 8px !important;
+}
+
+.stButton>button[key*=\"delete_file_\"]:hover {
+    background: rgba(255, 85, 85, 0.2) !important;
+    border-color: #ff5555 !important;
 }

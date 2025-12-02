@@ -39,8 +39,6 @@ def init_chromadb_client():
             error_msg += " CHROMA_DATABASE"
         raise ValueError(error_msg)
     
-    print(f"[ChromaDB] Connecting to tenant: {tenant}, database: {database}")
-    
     try:
         # Initialize ChromaDB client with correct settings
         _chroma_client = chromadb.CloudClient(
@@ -62,8 +60,6 @@ def init_chromadb_client():
             metadata={"description": "User chat sessions"}
         )
         
-        print(f"[ChromaDB] Collection 'user_chats' ready")
-        
         return _chroma_client, _collection
         
     except Exception as e:
@@ -84,7 +80,6 @@ def save_user_chats(user_id: int, chat_sessions: Dict, current_chat_id: str) -> 
         bool: Success status
     """
     try:
-        print(f"[ChromaDB] Saving chats for user {user_id}...")
         client, collection = init_chromadb_client()
         
         # Delete existing chats for this user
@@ -93,7 +88,6 @@ def save_user_chats(user_id: int, chat_sessions: Dict, current_chat_id: str) -> 
                 where={"user_id": str(user_id)}
             )
             if existing_ids and existing_ids['ids']:
-                print(f"[ChromaDB] Deleting {len(existing_ids['ids'])} existing chats for user {user_id}")
                 collection.delete(ids=existing_ids['ids'])
         except Exception as del_error:
             print(f"[ChromaDB] Note: No existing chats to delete or error: {del_error}")
@@ -121,15 +115,11 @@ def save_user_chats(user_id: int, chat_sessions: Dict, current_chat_id: str) -> 
         
         # Add to collection if there are chats
         if ids:
-            print(f"[ChromaDB] Adding {len(ids)} chats to collection...")
             collection.add(
                 ids=ids,
                 documents=documents,
                 metadatas=metadatas
             )
-            print(f"[ChromaDB] Successfully saved {len(ids)} chats for user {user_id}")
-        else:
-            print(f"[ChromaDB] No chats to save for user {user_id}")
         
         return True
         
@@ -148,7 +138,6 @@ def load_user_chats(user_id: int) -> Tuple[Dict, Optional[str]]:
         Tuple of (chat_sessions dict, current_chat_id)
     """
     try:
-        print(f"[ChromaDB] Loading chats for user {user_id}...")
         client, collection = init_chromadb_client()
         
         # Query all chats for this user
@@ -157,10 +146,7 @@ def load_user_chats(user_id: int) -> Tuple[Dict, Optional[str]]:
         )
         
         if not results or not results['ids']:
-            print(f"[ChromaDB] No existing chats found for user {user_id}")
             return {}, None
-        
-        print(f"[ChromaDB] Found {len(results['ids'])} chats for user {user_id}")
         
         # Reconstruct chat sessions
         chat_sessions = {}
@@ -181,7 +167,6 @@ def load_user_chats(user_id: int) -> Tuple[Dict, Optional[str]]:
             if metadata.get('is_current') == 'True':
                 current_chat_id = chat_id
         
-        print(f"[ChromaDB] Successfully loaded {len(chat_sessions)} chats for user {user_id}")
         return chat_sessions, current_chat_id
         
     except Exception as e:

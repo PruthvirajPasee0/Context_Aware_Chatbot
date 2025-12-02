@@ -8,14 +8,21 @@ from datetime import datetime
 # Import authentication and storage modules
 from auth import register_user, authenticate_user, get_username
 from chroma_storage import save_user_chats, load_user_chats
+from vector_store import (
+    process_and_store_pdf, 
+    retrieve_relevant_context, 
+    get_user_files, 
+    delete_user_file,
+    format_context_for_llm
+)
 
 # Load environment variables
 load_dotenv()
 
 # Page Configuration
 st.set_page_config(
-    page_title="Llama 3 Chatbot",
-    page_icon="🤖",
+    page_title="MemoryBot",
+    page_icon="👋",
     layout="centered",
     initial_sidebar_state="expanded"
 )
@@ -86,7 +93,7 @@ if not st.session_state.authenticated:
     if "show_register" not in st.session_state:
         st.session_state.show_register = False
     
-    tab1, tab2 = st.tabs(["🔐 Login", "📝 Register"])
+    tab1, tab2 = st.tabs(["Login", "Register"])
     
     with tab1:
         st.markdown("### Welcome Back!")
@@ -169,28 +176,15 @@ with st.sidebar:
     # User info and logout
     st.markdown(f"""
         <div style="text-align: center; margin-bottom: 1rem; padding: 1rem; background: rgba(137, 180, 250, 0.1); border-radius: 12px;">
-            <p style="margin: 0; color: var(--accent-secondary); font-size: 0.9rem;">👤 Logged in as</p>
+            <p style="margin: 0; color: var(--accent-secondary); font-size: 0.9rem;">Having a Great Day?</p>
             <p style="margin: 0; color: var(--text-primary); font-weight: 600; font-size: 1.1rem;">{st.session_state.username}</p>
         </div>
     """, unsafe_allow_html=True)
     
-    if st.button("🚪 Logout", use_container_width=True):
-        # Save chats before logging out
-        save_to_chromadb()
-        
-        # Clear session state
-        st.session_state.authenticated = False
-        st.session_state.user_id = None
-        st.session_state.username = None
-        st.session_state.chat_sessions = {}
-        st.rerun()
-    
-    st.markdown("---")
-    
-    st.title("💬 Chats")
+    st.title("Chats")
     
     # New Chat Button
-    if st.button("➕ New Chat", type="primary", use_container_width=True):
+    if st.button("New Chat", use_container_width=True):
         new_chat_id = create_new_chat()
         st.session_state.current_chat_id = new_chat_id
         save_to_chromadb()
@@ -215,7 +209,7 @@ with st.sidebar:
         
         # Show chat with selection indicator
         is_current = chat_id == st.session_state.current_chat_id
-        button_label = f"{'🟢 ' if is_current else '⚪ '}{chat_data['title']}"
+        button_label = f"{'🟢' if is_current else '⚪'} {chat_data['title']}"
         
         col1, col2 = st.columns([4, 1])
         with col1:
@@ -228,13 +222,77 @@ with st.sidebar:
         with col2:
             # Delete button (only if more than one chat exists)
             if len(st.session_state.chat_sessions) > 1:
-                if st.button("🗑️", key=f"delete_{chat_id}"):
+                if st.button("🗑️",type="primary", use_container_width=True, key=f"delete_{chat_id}"):
                     del st.session_state.chat_sessions[chat_id]
                     # Switch to another chat if current was deleted
                     if chat_id == st.session_state.current_chat_id:
                         st.session_state.current_chat_id = list(st.session_state.chat_sessions.keys())[0]
                     save_to_chromadb()
                     st.rerun()
+    
+    
+    st.markdown("---")
+    
+    # PDF Upload Section
+    st.markdown("###Upload Files")
+    
+    # Initialize session state for tracking processed files
+    if "processed_files" not in st.session_state:
+        st.session_state.processed_files = set()
+    
+    uploaded_file = st.file_uploader(
+        "Upload a PDF to ask questions about it",
+        type=['pdf'],
+        key="pdf_uploader",
+        label_visibility="collapsed"
+    )
+    
+    # Only process if file is new and hasn't been processed yet
+    if uploaded_file is not None:
+        file_id = f"{uploaded_file.name}_{uploaded_file.size}"
+        
+        if file_id not in st.session_state.processed_files:
+            # Process the uploaded file
+            with st.spinner(f"Processing {uploaded_file.name}..."):
+                success, message = process_and_store_pdf(
+                    st.session_state.user_id, 
+                    uploaded_file, 
+                    uploaded_file.name
+                )
+                
+                if success:
+                    st.session_state.processed_files.add(file_id)
+                    st.success(f"{uploaded_file.name} uploaded successfully!")
+                    st.info(message)
+                    # Small delay then rerun to clear the messages
+                    import time
+                    time.sleep(2)
+                    st.rerun()
+                else:
+                    st.error(f"❌ {message}")
+    
+    # Display uploaded files
+    user_files = get_user_files(st.session_state.user_id)
+    
+    if user_files:
+        st.markdown("**Your Uploaded Files:**")
+        for filename in user_files:
+            col1, col2 = st.columns([4, 2])
+            with col1:
+                st.markdown(f"{filename}")
+            with col2:
+                if st.button("Delete",type="primary", use_container_width=True ,key=f"delete_file_{filename}"):
+                    success, message = delete_user_file(st.session_state.user_id, filename)
+                    if success:
+                        # Remove from processed files set if it exists
+                        st.session_state.processed_files = {
+                            f for f in st.session_state.processed_files 
+                            if not f.startswith(filename)
+                        }
+                        st.success(message)
+                        st.rerun()
+                    else:
+                        st.error(message)
     
     st.markdown("---")
     
@@ -247,19 +305,27 @@ with st.sidebar:
     )
     
     # Clear Current Chat Button
-    if st.button("Clear Current Chat", use_container_width=True):
+    if st.button("Clear Current Chat", type="primary", use_container_width=True):
         st.session_state.chat_sessions[st.session_state.current_chat_id]["messages"] = []
         save_to_chromadb()
         st.rerun()
+
+    if st.button("Logout", type="primary", use_container_width=True):
+        # Save chats before logging out
+        save_to_chromadb()
         
-    st.markdown("---")
-    st.markdown("### About")
-    st.markdown("A compact, user-friendly chatbot powered by Groq and Llama 3.")
+        # Clear session state
+        st.session_state.authenticated = False
+        st.session_state.user_id = None
+        st.session_state.username = None
+        st.session_state.chat_sessions = {}
+        st.rerun()
+        
     
     st.markdown("---")
-    st.markdown("### Developed by")
+    st.markdown("### Handmade By")
     st.markdown("**Pruthviraj**")
-    st.markdown("📧 pruthvirajpasi42@gmail.com")
+    st.markdown("pruthvirajpasi42@gmail.com")
 
 # Main Chat Interface
 current_chat_title = st.session_state.chat_sessions[st.session_state.current_chat_id]["title"]
@@ -271,7 +337,7 @@ st.markdown(f"""
         <h1 style="background: linear-gradient(to right, #007aff, #00c6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.5rem; font-weight: 800;">
             {st.session_state.model}
         </h1>
-        <p style="color: #a0a0a0;">💬 {current_chat_title}</p>
+        <p style="color: #a0a0a0;">{current_chat_title}</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -279,7 +345,7 @@ st.markdown(f"""
 chat_str = "\n".join([f"{m['role']}: {m['content']}" for m in current_messages])
 if current_messages:
     st.download_button(
-        label="📥 Download Chat History",
+        label="Download Chat History",
         data=chat_str,
         file_name=f"chat_{current_chat_title[:20].replace(' ', '_')}.txt",
         mime="text/plain",
@@ -324,13 +390,44 @@ if prompt := (user_input or selected_prompt):
         full_response = ""
         
         try:
+            # RAG: Retrieve relevant context from uploaded files
+            has_context, contexts = retrieve_relevant_context(st.session_state.user_id, prompt)
+            
+            # Prepare messages for LLM
+            messages_for_llm = []
+            
+            # If we have relevant context, inject it as a system message
+            if has_context and contexts:
+                context_text = format_context_for_llm(contexts)
+                system_message = {
+                    "role": "system",
+                    "content": f"""You are a helpful AI assistant. The user has uploaded some documents. 
+Here is relevant information from those documents that may help answer their question:
+
+{context_text}
+
+Use this information to answer the user's question if it's relevant. If the context doesn't help answer the question, just respond normally based on your knowledge. If you are using the reference then add "Using Reference:" before your response."""
+                }
+                messages_for_llm.append(system_message)
+            
+            # IMPORTANT: Only send recent conversation history to avoid token limits
+            # Keep last 20 messages (10 conversation turns) to stay under Groq's 12k token limit
+            MAX_CONTEXT_MESSAGES = 20
+            
+            # Get recent messages (but keep full history in UI)
+            recent_messages = current_messages[-MAX_CONTEXT_MESSAGES:] if len(current_messages) > MAX_CONTEXT_MESSAGES else current_messages
+            
+            # Add recent conversation history
+            messages_for_llm.extend([
+                {"role": m["role"], "content": m["content"]}
+                for m in recent_messages
+            ])
+            
             stream = client.chat.completions.create(
                 model=st.session_state.model,
-                messages=[
-                    {"role": m["role"], "content": m["content"]}
-                    for m in current_messages
-                ],
+                messages=messages_for_llm,
                 stream=True,
+                max_tokens=1024 ,  # Limit response size to prevent exceeding token limits
             )
             
             for chunk in stream:

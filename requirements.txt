@@ -3,3 +3,8 @@ groq
 python-dotenv
 chromadb
 bcrypt
+langchain
+langchain-community
+pypdf
+sentence-transformers
+langchain_text_splitters
