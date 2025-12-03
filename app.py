@@ -294,6 +294,33 @@ with st.sidebar:
                     else:
                         st.error(message)
     
+    
+    st.markdown("---")
+    
+    # Global Context Section
+    st.markdown("### Global Context")
+    
+    # Initialize global context in session state
+    if "global_context" not in st.session_state:
+        st.session_state.global_context = ""
+    
+    global_context_input = st.text_area(
+        "Set a global instruction for all chats",
+        value=st.session_state.global_context,
+        placeholder="e.g., 'You are a skilled technician' or 'Always reply in a funny way'",
+        height=100,
+        help="This instruction will be applied to all your chats",
+        key="global_context_textarea"
+    )
+    
+    # Update global context when changed
+    if global_context_input != st.session_state.global_context:
+        st.session_state.global_context = global_context_input
+    
+    # Show current context status
+    if st.session_state.global_context:
+        st.info(f"✓ Global context active ({len(st.session_state.global_context)} chars)")
+    
     st.markdown("---")
     
     # Model Selection
@@ -396,17 +423,28 @@ if prompt := (user_input or selected_prompt):
             # Prepare messages for LLM
             messages_for_llm = []
             
-            # If we have relevant context, inject it as a system message
+            # Build system message with global context and/or RAG context
+            system_content_parts = []
+            
+            # Add global context if set
+            if st.session_state.get("global_context", "").strip():
+                system_content_parts.append(st.session_state.global_context.strip())
+            
+            # Add RAG context if available
             if has_context and contexts:
                 context_text = format_context_for_llm(contexts)
-                system_message = {
-                    "role": "system",
-                    "content": f"""You are a helpful AI assistant. The user has uploaded some documents. 
-Here is relevant information from those documents that may help answer their question:
+                rag_instruction = f"""The user has uploaded some documents. Here is relevant information:
 
 {context_text}
 
-Use this information to answer the user's question if it's relevant. If the context doesn't help answer the question, just respond normally based on your knowledge. If you are using the reference then add "Using Reference:" before your response."""
+Use this information to answer the user's question if it's relevant. If you are using the reference then add "Using Reference:" before your response."""
+                system_content_parts.append(rag_instruction)
+            
+            # Create system message if we have any context
+            if system_content_parts:
+                system_message = {
+                    "role": "system",
+                    "content": "\n\n".join(system_content_parts)
                 }
                 messages_for_llm.append(system_message)
             

@@ -368,3 +368,23 @@ code {
     background: rgba(255, 85, 85, 0.2) !important;
     border-color: #ff5555 !important;
 }
+/* Text Area (Global Context) */
+.stTextArea textarea {
+    background-color: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    transition: border-color 0.3s ease;
+    padding: 0.75rem;
+}
+
+.stTextArea textarea:focus {
+    border-color: var(--accent-secondary);
+    outline: none;
+}
+
+.stTextArea textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
