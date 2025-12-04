@@ -79,73 +79,73 @@ if "model" not in st.session_state:
     st.session_state.model = "llama-3.3-70b-versatile"
 
 # # Authentication UI
-# if not st.session_state.authenticated:
-#     st.markdown("""
-#         <div style="text-align: center; margin-bottom: 3rem;">
-#             <h1 style="background: linear-gradient(to right, #007aff, #00c6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3.5rem; font-weight: 800;">
-#                 🤖 Llama 3 Chatbot
-#             </h1>
-#             <p style="color: #a0a0a0; font-size: 1.2rem;">Sign in to access your personal AI assistant</p>
-#         </div>
-#     """, unsafe_allow_html=True)
+if not st.session_state.authenticated:
+    st.markdown("""
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h1 style="background: linear-gradient(to right, #007aff, #00c6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3.5rem; font-weight: 800;">
+                🤖 Llama 3 Chatbot
+            </h1>
+            <p style="color: #a0a0a0; font-size: 1.2rem;">Sign in to access your personal AI assistant</p>
+        </div>
+    """, unsafe_allow_html=True)
     
-#     # Toggle between login and register
-#     if "show_register" not in st.session_state:
-#         st.session_state.show_register = False
+    # Toggle between login and register
+    if "show_register" not in st.session_state:
+        st.session_state.show_register = False
     
-#     tab1, tab2 = st.tabs(["Login", "Register"])
+    tab1, tab2 = st.tabs(["Login", "Register"])
     
-#     with tab1:
-#         st.markdown("### Welcome Back!")
-#         with st.form("login_form"):
-#             login_username = st.text_input("Username", key="login_username")
-#             login_password = st.text_input("Password", type="password", key="login_password")
-#             submit_login = st.form_submit_button("Login", use_container_width=True, type="primary")
+    with tab1:
+        st.markdown("### Welcome Back!")
+        with st.form("login_form"):
+            login_username = st.text_input("Username", key="login_username")
+            login_password = st.text_input("Password", type="password", key="login_password")
+            submit_login = st.form_submit_button("Login", use_container_width=True, type="primary")
             
-#             if submit_login:
-#                 success, user_id, message = authenticate_user(login_username, login_password)
-#                 if success:
-#                     st.session_state.authenticated = True
-#                     st.session_state.user_id = user_id
-#                     st.session_state.username = login_username
+            if submit_login:
+                success, user_id, message = authenticate_user(login_username, login_password)
+                if success:
+                    st.session_state.authenticated = True
+                    st.session_state.user_id = user_id
+                    st.session_state.username = login_username
                     
-#                     # Load user's chats from ChromaDB
-#                     loaded_sessions, loaded_current_id = load_user_chats(user_id)
+                    # Load user's chats from ChromaDB
+                    loaded_sessions, loaded_current_id = load_user_chats(user_id)
                     
-#                     if loaded_sessions:
-#                         st.session_state.chat_sessions = loaded_sessions
-#                         st.session_state.current_chat_id = loaded_current_id or list(loaded_sessions.keys())[0]
-#                     else:
-#                         # Create first chat for new user
-#                         st.session_state.chat_sessions = {}
-#                         first_chat_id = create_new_chat()
-#                         st.session_state.current_chat_id = first_chat_id
-#                         save_to_chromadb()
+                    if loaded_sessions:
+                        st.session_state.chat_sessions = loaded_sessions
+                        st.session_state.current_chat_id = loaded_current_id or list(loaded_sessions.keys())[0]
+                    else:
+                        # Create first chat for new user
+                        st.session_state.chat_sessions = {}
+                        first_chat_id = create_new_chat()
+                        st.session_state.current_chat_id = first_chat_id
+                        save_to_chromadb()
                     
-#                     st.success(f"Welcome back, {login_username}!")
-#                     st.rerun()
-#                 else:
-#                     st.error(message)
+                    st.success(f"Welcome back, {login_username}!")
+                    st.rerun()
+                else:
+                    st.error(message)
     
-#     with tab2:
-#         st.markdown("### Create Account")
-#         with st.form("register_form"):
-#             reg_username = st.text_input("Username (min 3 characters)", key="reg_username")
-#             reg_password = st.text_input("Password (min 6 characters)", type="password", key="reg_password")
-#             reg_password_confirm = st.text_input("Confirm Password", type="password", key="reg_password_confirm")
-#             submit_register = st.form_submit_button("Register", use_container_width=True, type="primary")
+    with tab2:
+        st.markdown("### Create Account")
+        with st.form("register_form"):
+            reg_username = st.text_input("Username (min 3 characters)", key="reg_username")
+            reg_password = st.text_input("Password (min 6 characters)", type="password", key="reg_password")
+            reg_password_confirm = st.text_input("Confirm Password", type="password", key="reg_password_confirm")
+            submit_register = st.form_submit_button("Register", use_container_width=True, type="primary")
             
-#             if submit_register:
-#                 if reg_password != reg_password_confirm:
-#                     st.error("Passwords do not match")
-#                 else:
-#                     success, message = register_user(reg_username, reg_password)
-#                     if success:
-#                         st.success(message + " Please login.")
-#                     else:
-#                         st.error(message)
+            if submit_register:
+                if reg_password != reg_password_confirm:
+                    st.error("Passwords do not match")
+                else:
+                    success, message = register_user(reg_username, reg_password)
+                    if success:
+                        st.success(message + " Please login.")
+                    else:
+                        st.error(message)
     
-#     st.stop()  # Stop here if not authenticated
+    st.stop()  # Stop here if not authenticated
 
 # Main Chat Application (Only shown when authenticated)
 # Initialize chat sessions for authenticated user
