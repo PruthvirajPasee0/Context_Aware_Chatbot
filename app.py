@@ -83,7 +83,7 @@ if not st.session_state.authenticated:
     st.markdown("""
         <div style="text-align: center; margin-bottom: 3rem;">
             <h1 style="background: linear-gradient(to right, #007aff, #00c6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3.5rem; font-weight: 800;">
-                🤖 Llama 3 Chatbot
+                Llama 3 Chatbot
             </h1>
             <p style="color: #a0a0a0; font-size: 1.2rem;">Sign in to access your personal AI assistant</p>
         </div>
